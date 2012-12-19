@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Demo</title>
+    <meta name="author" content="Karn Ratana">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+
+    <style>
+        th, td
+        {
+            padding-left:5px;
+            padding-right:5px;
+        }
+
+        .search-box
+        {
+            background-color:#999999;
+        }
+
+        .input-date
+        {
+            width:50px;
+        }
+        .input-company
+        {
+            width:50px;
+        }
+        .input-contract
+        {
+            width:50px;
+        }
+        .input-item-code
+        {
+            width:100px;
+        }
+        .input-item-name
+        {
+            width:200px;
+        }
+        .input-quantity
+        {
+            width:50px;
+        }
+        .input-lot-number
+        {
+            width:50px;
+        }
+        .input-test-number
+        {
+            width:50px;
+        }
+        .input-officer
+        {
+            width:50px;
+        }
+        .input-remark
+        {
+            width:200px;
+        }
+
+        .setting-block
+        {
+            border:1px solid black;
+        }
+    </style>
+</head>
+ <body ng-app="demo">
+    <h1>demo </h1>
+    
+    <div id="tabs" class="subnav">
+        <section ng-controller="MenuCtrl">
+            <ul class="nav nav-pills">
+                <li><a href="#login">[Log In]</a></li>
+                <li><a href="#dataentry">[Data Entry]</a></li>
+                <li><a href="#datalookup">[Look Up]</a></li>
+                <li><a href="#settings">[{{username}} Settings]</a></li>
+            </ul>
+        </section>
+    
+        <section id="login" ng-controller="LoginCtrl">
+            <div class="span12">
+                <div class="control-group well">
+                    <h2>Log In</h2>
+                    <table>
+                        <tr>
+                            <th>Username:</th>
+                            <td><input ng-model="username" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <th>Password:</th>
+                            <td><input ng-model="password" type="password" /></td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td>
+                                <input type="button" value="Log In" ng-click="logIn()" />
+                                {{message}}
+                            </td>
+                        </tr>
+                    </table>                
+                </div>
+            </div>
+        </section>
+             
+    
+        <section id="dataentry" ng-controller="DataEntryCtrl">
+            <div class="span16">
+                <div class="control-group well">
+                    <h2>Data Entry</h2>
+                    
+                    <table class="search-box">
+                        <tr>
+                            <th>Date:</th>
+                            <td><input type="date" ng-model="newDate" /></td>
+                        </tr>
+                        <tr>
+                            <th>Company:</th>
+                            <td>
+                                <select ng-model="newCompany" ng-options="item.name for item in Companies">
+                                    <option value="">-- select --</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Contract:</th>
+                            <td>
+                                <select ng-model="newContract" ng-options="item.name for item in Contracts">
+                                    <option value="">-- select --</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td>
+                                <input id="newOutsourced" type="checkbox" ng-model="newOutsourced" />
+                                <label for="newOutsourced" style="display:inline">Out sourced</label>
+                            </td>
+                        </tr>
+                    </table>  
+
+                    <table>
+                        <tr>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Qty</th>
+                            <th>Lot No.</th>
+                            <th>Test No.</th>
+                            <th>Officer</th>
+                            <th>Remark</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <select ng-model="newItem" ng-options="item.code for item in Items">
+                                    <option value="">-- select --</option>
+                                </select>
+                            </td>
+                            <td><input ng-model="newItem.name" type="text" class="input-item-name" readonly="readonly" /></td>
+                            <td><input ng-model="newQuantity" type="text" class="input-quantity" /></td>
+                            <td><input ng-model="newLotNumber" type="text" class="input-lot-number" /></td>
+                            <td><input ng-model="newTestNumber" type="text" class="input-test-number" readonly="readonly" /></td>
+                            <td>
+                                <select ng-model="newInspector" ng-options="item.username for item in Users">
+                                    <option value="">-- select --</option>
+                                </select>
+                            </td>
+                            <td><input ng-model="newRemark" type="text" class="input-remark" /></td>
+                            <td><input ng-model="newStatus" type="checkbox" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="12">
+                                <input type="button" value="Add more line" ng-click="addItem()" disabled="disabled" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="12">
+                                <input type="button" value="Save" ng-click="save()" />
+                                <input type="button" value="Cancel" ng-click="clearItemFields()" />
+                            </td>
+                        </tr>
+                    </table>                
+                </div>
+            </div>
+        </section>
+
+
+        <section id="datalookup" ng-controller="DataLookUpCtrl">
+            <div class="span16">
+                <div class="control-group well">
+                    <h2>Data Look Up</h2>
+                    
+                    <table class="search-box">
+                        <tr>
+                            <th>Date:</th>
+                            <td>
+                                <input type="date" readonly="readonly" />
+                                to
+                                <input type="date" readonly="readonly" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Company:</th>
+                            <td>
+                                <select ng-model="searchCompany" ng-options="item.name for item in Companies">
+                                    <option value="">-- select --</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Contract:</th>
+                            <td>
+                                <select ng-model="searchContract" ng-options="item.name for item in Contracts">
+                                    <option value="">-- select --</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td>
+                                <input id="searchOutsourced" type="checkbox" />
+                                <label for="outsourced" style="display:inline">Out sourced</label>
+
+                                (Not working yet)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Item</th>
+                            <td>
+                                <select ng-model="searchItem" ng-options="item.code for item in Items">
+                                    <option value="">-- select --</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Inspector</th>
+                            <td>
+                                <select ng-model="searchInspector" ng-options="item.username for item in Users">
+                                    <option value="">-- select --</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <input id="searchTestPassed" type="checkbox" />
+                                <label for="searchTestPassed" style="display:inline">Test passed</label>
+                                
+                                <input id="searchNotReady" type="checkbox" />
+                                <label for="searchNotReady" style="display:inline">Not Ready</label>
+
+                                (Not working yet)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td><input type="button" value="Search" ng-click="search()" /></td>
+                        </tr>
+                    </table>  
+
+
+                    <table>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Company</th>
+                            <th>Contract</th>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Qty</th>
+                            <th>Lot No.</th>
+                            <th>Test No.</th>
+                            <th>Officer</th>
+                            <th>Remark</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr ng-repeat="item in Result">
+                            <td>{{item.id}}</td>
+                            <td>{{item.date}}</td>
+                            <td>{{Companies[item.companyId-1].name}}</td><!-- quick & dirty: this assumes (ID-1) is the array index -->
+                            <td>{{Contracts[item.contractId-1].name}}</td>
+                            <td>{{Items[item.itemId-1].code}}</td>
+                            <td>{{Items[item.itemId-1].name}}</td>
+                            <td>{{item.quantity}}</td>
+                            <td>{{item.lotNumber}}</td>
+                            <td>{{item.testNumber}}</td>
+                            <td>{{Users[item.inspectorId-1].name}}</td>
+                            <td>{{item.remark}}</td>
+                            <td><input type="checkbox" ng-model="item.status" /></td>
+                        </tr>
+                    </table>                
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="settings" ng-controller="SettingsCtrl">
+            <div class="span12">
+                <div class="control-group well">
+                    <h2>Settings</h2>
+
+                    <div>
+                        <input type="button" value="Clear Data" ng-click="clearData()" />
+                        <input type="button" value="Reset Demo" ng-click="resetDemo()" />
+                    </div>
+                    
+                    <fieldset class="setting-block">
+                        <legend>Contracts</legend>
+                        <table>
+                            <tr>
+                                <th>Name</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                            <tr ng-repeat="item in Contracts">
+                                <td>{{item.name}}</td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" ng-model="newContract" /></td>
+                                <td><input type="button" value="Add" ng-click="addContract()" /></td>
+                            </tr>
+                        </table>
+                    </fieldset>   
+                     
+                    <fieldset class="setting-block">
+                        <legend>Companies</legend>
+                        <table>
+                            <tr>
+                                <th>Name</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                            <tr ng-repeat="item in Companies">
+                                <td>{{item.name}}</td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" ng-model="newCompany" /></td>
+                                <td><input type="button" value="Add" ng-click="addCompany()" /></td>
+                            </tr>
+                        </table>
+                    </fieldset>   
+                    
+                    <fieldset class="setting-block">
+                        <legend>Items</legend>
+                        <table>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                            <tr ng-repeat="item in Items">
+                                <td>{{item.code}}</td>
+                                <td>{{item.name}}</td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" ng-model="newItemCode" /></td>
+                                <td><input type="text" ng-model="newItemName" /></td>
+                                <td><input type="button" value="Add" ng-click="addItem()" /></td>
+                            </tr>
+                        </table>
+                    </fieldset>     
+                    
+                    <fieldset class="setting-block">
+                        <legend>Users</legend>
+                        <table>
+                            <tr>
+                                <th>Username</th>
+                                <th>Password</th>
+                                <th>Type</th>
+                            </tr>
+                            <tr ng-repeat="item in Users">
+                                <td>{{item.username}}</td>
+                                <td>{{item.password}}</td>
+                                <td>???</td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" ng-model="newUsername" /></td>
+                                <td><input type="text" ng-model="newPassword" /></td>
+                                <td><input type="text" ng-model="newType" readonly="readonly" /></td>
+                                <td><input type="button" value="Add" ng-click="addUser()" /></td>
+                            </tr>
+                        </table>
+                    </fieldset>           
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+
+
+    <script type="text/javascript">
+        // Notes:
+        // 1 - We are using array index as object ids
+        // 2 - localStorage saves data as string, so we have to parse it when retrieving
+
+        var DemoServices = angular.module('demo.service', []);
+        DemoServices.service('DataService', ['$rootScope',
+            function ($rootScope) {
+                var service = {};
+
+
+                service.initialize = function () {
+                    localStorage[Demo.PREFIX] = 'true';
+                    localStorage[Demo.PREFIX + "Contracts"] = '[]';
+                    localStorage[Demo.PREFIX + "Companies"] = '[]';
+                    localStorage[Demo.PREFIX + "Data"] = '[]';
+                    localStorage[Demo.PREFIX + "Items"] = '[]';
+                    localStorage[Demo.PREFIX + "Users"] = '[]';
+                };
+                
+                service.isInitialized = function () {
+                    return localStorage[Demo.PREFIX] == 'true';
+                };
+
+
+                service.currentUser = { username: "guest" };
+                service.Contracts = service.isInitialized() ? JSON.parse(localStorage[Demo.PREFIX + "Contracts"]) : [];
+                service.Companies = service.isInitialized() ? JSON.parse(localStorage[Demo.PREFIX + "Companies"]) : [];
+                service.Data = service.isInitialized() ? JSON.parse(localStorage[Demo.PREFIX + "Data"]) : [];
+                service.Items = service.isInitialized() ? JSON.parse(localStorage[Demo.PREFIX + "Items"]) : [];
+                service.Users = service.isInitialized() ? JSON.parse(localStorage[Demo.PREFIX + "Users"]) : [];
+
+
+                service.setCurrentUser = function (value) {
+                    this.currentUser = value;
+                    $rootScope.$broadcast('DataService.update', this.currentUser);
+                };
+                service.setContracts = function (value) {
+                    localStorage[Demo.PREFIX + "Contracts"] = JSON.stringify(value);
+                    $rootScope.$broadcast('DataService.update', this.Contracts);
+                };
+                service.setCompanies = function (value) {
+                    localStorage[Demo.PREFIX + "Companies"] = JSON.stringify(value);
+                    $rootScope.$broadcast('DataService.update', this.Companies);
+                };
+                service.setData = function (value) {
+                    localStorage[Demo.PREFIX + "Data"] = JSON.stringify(value);
+                    $rootScope.$broadcast('DataService.update', this.Data);
+                };
+                service.setItems = function (value) {
+                    localStorage[Demo.PREFIX + "Items"] = JSON.stringify(value);
+                    $rootScope.$broadcast('DataService.update', this.Items);
+                };
+                service.setUsers = function (value) {
+                    localStorage[Demo.PREFIX + "Users"] = JSON.stringify(value);
+                    $rootScope.$broadcast('DataService.update', this.Users);
+                };
+
+                service.clearData = function () {
+                    localStorage.clear();
+                    localStorage[Demo.PREFIX] = true;
+                };
+
+
+                service.setUpDefaultData = function () {
+                    console.log("Removing all data...");
+                    localStorage.clear();
+                    localStorage[Demo.PREFIX] = true;
+
+                    console.log("Loading Contracts...");
+                    localStorage[Demo.PREFIX + "Contracts"] =
+                        JSON.stringify(
+                            [
+                                { id: 1, name: 'ZT.1/2012' },
+                                { id: 2, name: 'ZT.2/2012' },
+                            ]
+                        );
+
+                    console.log("Loading Companies...");
+                    localStorage[Demo.PREFIX + "Companies"] =
+                        JSON.stringify(
+                            [
+                                { id: 1, name: 'Company A' },
+                                { id: 2, name: 'Company B' },
+                                { id: 3, name: 'Company C' },
+                                { id: 4, name: 'Company D' },
+                            ]
+                        );
+
+                    console.log("Loading Items...");
+                    localStorage[Demo.PREFIX + "Items"] =
+                        JSON.stringify(
+                            [
+                                { id: 1, code: 'PAP85S*100', name: 'PVC bell-pipe size100 class8.5 bell-rubber included' },
+                                { id: 2, code: 'PAP85S*200', name: 'PVC bell-pipe size200 class8.5 bell-rubber included' },
+                                { id: 3, code: 'PAP85S*300', name: 'PVC bell-pipe size300 class8.5 bell-rubber included' },
+                                { id: 4, code: 'PAP135S*100', name: 'PVC bell-pipe size100 class13.5 bell-rubber included' },
+                                { id: 5, code: 'PAP135S*200', name: 'PVC bell-pipe size200 class13.5 bell-rubber included' },
+                                { id: 6, code: 'PAP135S*300', name: 'PVC bell-pipe size300 class13.5 bell-rubber included' },
+                                { id: 7, code: 'PBE85S100*90', name: 'PVC bended-bell-pipe size100 degree90 class8.5 bell-rubber included' },
+                                { id: 8, code: 'PBE85S100*45', name: 'PVC bended-bell-pipe size100 degree45 class8.5 bell-rubber included' },
+                                { id: 9, code: 'RSS100', name: 'bell-rubber size100' },
+                                { id: 10, code: 'RSS200', name: 'bell-rubber size200' },
+                                { id: 11, code: 'RSS300', name: 'bell-rubber size300' },
+                            ]
+                        );
+
+                    console.log("Loading Users...");
+                    localStorage[Demo.PREFIX + "Users"] =
+                        JSON.stringify(
+                            [
+                                { id: 1, username: 'Alice', password: 'aaa' },
+                                { id: 2, username: 'Bob', password: 'bbb' },
+                                { id: 3, username: 'Carol', password: 'ccc' },
+                                { id: 4, username: 'Dave', password: 'ddd' },
+                            ]
+                        );
+
+                    console.log("Loading Data...");
+                    localStorage[Demo.PREFIX + "Data"] =
+                        JSON.stringify(
+                            [
+                                { id: 1, date: '2012-11-01', companyId: 1, contractId: 1, itemId: 1, quantity: 11, lotNumber: 'a1', testNumber: '101', inspectorId: 1, remark: 'line A', status: true },
+                                { id: 2, date: '2012-11-02', companyId: 2, contractId: 1, itemId: 1, quantity: 21, lotNumber: 'b1', testNumber: '102', inspectorId: 2, remark: 'line B', status: false },
+                                { id: 3, date: '2012-11-02', companyId: 2, contractId: 1, itemId: 2, quantity: 22, lotNumber: 'b2', testNumber: '103', inspectorId: 2, remark: 'line C', status: true },
+                                { id: 4, date: '2012-11-03', companyId: 3, contractId: 1, itemId: 1, quantity: 31, lotNumber: 'c1', testNumber: '104', inspectorId: 1, remark: 'line D', status: false },
+                                { id: 5, date: '2012-11-03', companyId: 3, contractId: 1, itemId: 2, quantity: 32, lotNumber: 'c2', testNumber: '105', inspectorId: 1, remark: 'line E', status: true },
+                                { id: 6, date: '2012-11-03', companyId: 3, contractId: 2, itemId: 3, quantity: 33, lotNumber: 'c3', testNumber: '106', inspectorId: 1, remark: 'line F', status: false },
+                                { id: 7, date: '2012-11-04', companyId: 4, contractId: 2, itemId: 1, quantity: 41, lotNumber: 'd1', testNumber: '107', inspectorId: 2, remark: 'line G', status: true },
+                                { id: 8, date: '2012-11-04', companyId: 4, contractId: 2, itemId: 2, quantity: 42, lotNumber: 'd2', testNumber: '108', inspectorId: 2, remark: 'line H', status: false },
+                                { id: 9, date: '2012-11-04', companyId: 4, contractId: 2, itemId: 3, quantity: 43, lotNumber: 'd3', testNumber: '109', inspectorId: 2, remark: 'line I', status: true },
+                                { id: 10, date: '2012-11-04', companyId: 4, contractId: 2, itemId: 4, quantity: 44, lotNumber: 'd4', testNumber: '110', inspectorId: 2, remark: 'line J', status: false }
+                            ]
+                        );
+                };
+
+
+                return service;
+            }
+        ]);
+
+
+
+        var DemoApp = angular.module('demo', ['demo.service']);
+        
+        
+        DemoApp.controller('MenuCtrl',
+            function ($scope, DataService) {
+                var u = DataService.currentUser;
+                $scope.username = u.username;
+            }
+        );
+
+        DemoApp.controller('LoginCtrl',
+            function ($scope, DataService) {
+                // initialization
+                if (!DataService.isInitialized) {
+                    DataService.initialize();
+                }
+
+                $scope.Users = DataService.Users;
+                $scope.username = "";
+                $scope.password = "";
+
+                $scope.logIn = function () {
+                    var user = null;
+
+                    // authenticate the user
+                    for (var item in $scope.Users) {
+                        if ($scope.username == $scope.Users[item].username && $scope.password == $scope.Users[item].password) {
+                            $scope.message = "You are now logged in as " + $scope.username;
+                            DataService.setCurrentUser($scope.Users[item]);
+
+                            user = DataService.currentUser;
+                            break;
+                        }
+                    }
+
+                    if (user == null) {
+                        $scope.message = "Login failed.";
+                    }
+                };
+            }
+        );
+
+        DemoApp.controller('DataEntryCtrl',
+            function ($scope, DataService) {
+                $scope.Contracts = DataService.Contracts;
+                $scope.Companies = DataService.Companies;
+                $scope.Items = DataService.Items;
+                $scope.Users = DataService.Users;
+
+                $scope.addItem = function () {
+                    alert('adding a new item...');
+                };
+
+                $scope.save = function () {
+                    // check the required fields
+                    if (typeof $scope.newDate === "undefined" || $scope.newDate == null) {
+                        alert('Please select a date.');
+                        return;
+                    }
+                    
+                    if (typeof $scope.newCompany === "undefined" || $scope.newCompany == null) {
+                        alert('Please select a company.');
+                        return;
+                    }
+                    
+                    if (typeof $scope.newContract === "undefined" || $scope.newContract == null) {
+                        alert('Please select a contract.');
+                        return;
+                    }
+                    
+                    if (typeof $scope.newItem === "undefined" || $scope.newItem == null) {
+                        alert('Please select an item.');
+                        return;
+                    }
+                    
+                    if (typeof $scope.newInspector === "undefined" || $scope.newInspector == null) {
+                        alert('Please select an inspector.');
+                        return;
+                    }
+                    
+                    
+                    // default values for optional fields
+                    if (typeof $scope.newQuantity === "undefined" || $scope.newQuantity == null) {
+                        $scope.newQuantity = "";
+                    }
+                    
+                    if (typeof $scope.newLotNumber === "undefined" || $scope.newLotNumber == null) {
+                        $scope.newLotNumber = "";
+                    }
+                    
+                    if (typeof $scope.newTestNumber === "undefined" || $scope.newTestNumber == null) {
+                        $scope.newTestNumber = "";
+                    }
+                    
+                    if (typeof $scope.newRemark === "undefined" || $scope.newRemark == null) {
+                        $scope.newRemark = "";
+                    }
+                    
+                    if (typeof $scope.newStatus === "undefined" || $scope.newStatus == null) {
+                        $scope.newStatus = false;
+                    }
+                    
+
+                    // get the freshest data so we can calculate the correct id
+                    $scope.Data = DataService.getData();
+
+                    var newItem = { 
+                        id: $scope.Data.length+1, // quick & dirty: using array index as id
+                        date: $scope.newDate, 
+                        companyId: $scope.newCompany.id, 
+                        contractId: $scope.newContract.id, 
+                        itemId: $scope.newItem.id, 
+                        quantity: $scope.newQuantity, 
+                        lotNumber: $scope.newLotNumber, 
+                        testNumber: $scope.newTestNumber, 
+                        inspectorId: $scope.newInspector.id, 
+                        remark: $scope.newRemark, 
+                        status: $scope.newStatus 
+                    };
+                    
+                    // update the data object & save to localStorage
+                    $scope.Data.push(newItem);
+                    localStorage[Demo.PREFIX + "Data"] = JSON.stringify($scope.Data);
+                    
+                    alert('Item has been saved.');
+                    $scope.clearItemFields();
+                };
+
+                $scope.clearItemFields = function() {
+                    $scope.newItem = {};
+                    $scope.newQuantity = "";
+                    $scope.newLotNumber = "";
+                    $scope.newTestNumber = "";
+                    $scope.newInspector = {};
+                    $scope.newRemark = "";
+                    $scope.newStatus = false;
+                }
+            }
+        );
+
+        DemoApp.controller('DataLookUpCtrl',
+            function ($scope, DataService) {
+                // Load these because they're used in the search form
+                $scope.Contracts = DataService.Contracts;
+                $scope.Companies = DataService.Companies;
+                $scope.Items = DataService.Items;
+                $scope.Users = DataService.Users;
+                
+                // leave these blank for now, they are the results
+                $scope.Data = [];
+                $scope.Result = [];
+                
+                $scope.search = function () {
+                    // get the freshest data
+                    $scope.Data = DataService.getData();
+
+                    $scope.Result = $scope.Data.filter(function (item) {
+                        // TODO add date and status criteria
+                        // this search returns the results that match ALL of the criteria
+                        // (AND instead of OR)
+
+                        // returns nothing if there is no criteria selected
+                        //if ((typeof $scope.searchCompany === "undefined" || $scope.searchCompany == null) &&
+                        //    (typeof $scope.searchContract === "undefined" || $scope.searchContract == null) &&
+                        //    (typeof $scope.searchInspector === "undefined" || $scope.searchInspector == null) &&
+                        //    (typeof $scope.searchItem === "undefined" || $scope.searchItem == null)) {
+                        //    return false;
+                        //}
+
+
+                        if (typeof $scope.searchCompany !== "undefined" && $scope.searchCompany != null && $scope.searchCompany.id != item.companyId) {
+                            return false;
+                        }
+
+                        if (typeof $scope.searchContract !== "undefined" && $scope.searchContract != null && $scope.searchContract.id != item.contractId) {
+                            return false;
+                        }
+
+                        if (typeof $scope.searchInspector !== "undefined" && $scope.searchInspector != null && $scope.searchInspector.id != item.inspectorId) {
+                            return false;
+                        }
+
+                        if (typeof $scope.searchItem !== "undefined" && $scope.searchItem != null && $scope.searchItem.id != item.itemId) {
+                            return false;
+                        }
+
+                        return true;
+                    });
+                };
+            }
+        );
+
+        DemoApp.controller('SettingsCtrl',
+            function ($scope, DataService) {
+                $scope.Contracts = DataService.Contracts;
+                $scope.Companies = DataService.Companies;
+                $scope.Items = DataService.Items;
+                $scope.Users = DataService.Users;
+
+                $scope.addContract = function () {
+                    $scope.Contracts.push({ id: $scope.Contracts.length + 1, name: $scope.newContract });
+                    DataService.setContracts($scope.Contracts);
+
+                    $scope.newContract = '';
+                }
+
+                $scope.addCompany = function () {
+                    $scope.Companies.push({ id: $scope.Companies.length + 1, name: $scope.newCompany });
+                    DataService.setCompanies($scope.Companies);
+
+                    $scope.newCompany = '';
+                }
+
+                $scope.addItem = function () {
+                    $scope.Items.push({ id: $scope.Items.length + 1, code: $scope.newItemCode, name: $scope.newItemName });
+                    DataService.setItems($scope.Items);
+
+                    $scope.newItemCode = '';
+                    $scope.newItemName = '';
+                }
+
+                $scope.addUser = function () {
+                    $scope.Users.push({ id: $scope.Users.length + 1, username: $scope.newUsername, password: $scope.newPassword });
+                    DataService.setUsers($scope.Users);
+
+                    $scope.newUsername = '';
+                    $scope.newPassword = '';
+                }
+
+
+
+                $scope.clearData = function () {
+                    if (confirm('Do you want to clear the data?')) {
+                        DataService.clearData();
+                        DataService.initialize();
+
+                        alert('The data has been cleared.');
+                    }
+                }
+
+                $scope.resetDemo = function () {
+                    if (confirm('Do you want to reset the demo?')) {
+                        DataService.clearData();
+                        DataService.setUpDefaultData();
+
+                        alert('The demo has been reset.');
+                    }
+                };
+            }
+        );
+
+
+
+
+
+
+
+        var Demo = Demo || {};
+        Demo.PREFIX = "DEMO_";
+
+
+
+
+        $(document).ready(function () {
+            $("#tabs").tabs();
+
+        });
+    </script>
+ </body>
+ </html>
