@@ -587,6 +587,7 @@
             function ($scope, DataService) {
                 $scope.Contracts = DataService.Contracts;
                 $scope.Companies = DataService.Companies;
+                $scope.Data = DataService.Data;
                 $scope.Items = DataService.Items;
                 $scope.Users = DataService.Users;
 
@@ -643,10 +644,6 @@
                         $scope.newStatus = false;
                     }
                     
-
-                    // get the freshest data so we can calculate the correct id
-                    $scope.Data = DataService.getData();
-
                     var newItem = { 
                         id: $scope.Data.length+1, // quick & dirty: using array index as id
                         date: $scope.newDate, 
@@ -663,7 +660,7 @@
                     
                     // update the data object & save to localStorage
                     $scope.Data.push(newItem);
-                    localStorage[Demo.PREFIX + "Data"] = JSON.stringify($scope.Data);
+                    DataService.setData($scope.Data);
                     
                     alert('Item has been saved.');
                     $scope.clearItemFields();
@@ -686,17 +683,14 @@
                 // Load these because they're used in the search form
                 $scope.Contracts = DataService.Contracts;
                 $scope.Companies = DataService.Companies;
+                $scope.Data = DataService.Data;
                 $scope.Items = DataService.Items;
                 $scope.Users = DataService.Users;
                 
                 // leave these blank for now, they are the results
-                $scope.Data = [];
                 $scope.Result = [];
                 
                 $scope.search = function () {
-                    // get the freshest data
-                    $scope.Data = DataService.getData();
-
                     $scope.Result = $scope.Data.filter(function (item) {
                         // TODO add date and status criteria
                         // this search returns the results that match ALL of the criteria
